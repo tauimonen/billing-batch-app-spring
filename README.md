@@ -94,3 +94,9 @@ Check tables
 ```
 postgres=# \d
 ```
+
+Verify job status
+```
+docker exec postgres psql -U postgres -c 'select * from BATCH_JOB_EXECUTION;'
+```
+
