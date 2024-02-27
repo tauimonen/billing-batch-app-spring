@@ -3,7 +3,7 @@ package example.billingapp;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 
-public class BillingJob implements Job{
+public class BillingJob implements Job {
     @Override
     public String getName() {
         return "BillingJob";
