@@ -20,7 +20,7 @@ public class BillingJob implements Job {
     public void execute(JobExecution execution) {
         JobParameters jobParameters = execution.getJobParameters();
         String inputFile = jobParameters.getString("input.file");
-        System.out.println("processing billing information from file: " + inputFile);
+        System.out.println("processing billing information from file " + inputFile);
         System.out.println("processing billing information");
         execution.setStatus(BatchStatus.COMPLETED);
         execution.setExitStatus(ExitStatus.COMPLETED);
