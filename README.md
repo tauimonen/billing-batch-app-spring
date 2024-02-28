@@ -105,6 +105,7 @@ Launch the Job and pass the input file as a parameter
 java -jar target/billing-app-0.0.1-SNAPSHOT.jar input.file=src/main/resources/billing-2024-01.csv
 ```
 
+Useful commands
 ```
 $ docker exec postgres psql -U postgres -c 'select * from BATCH_JOB_INSTANCE;'
 ```
@@ -115,4 +116,8 @@ $ docker exec postgres psql -U postgres -c 'select * from BATCH_JOB_EXECUTION;'
 
 ```
 $ docker exec postgres psql -U postgres -c 'select * from BATCH_JOB_EXECUTION_PARAMS;'
+```
+
+```
+$ docker exec postgres psql -U postgres -c 'select count(*) from BATCH_JOB_EXECUTION;
 ```
