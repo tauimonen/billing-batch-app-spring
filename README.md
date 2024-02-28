@@ -121,3 +121,11 @@ $ docker exec postgres psql -U postgres -c 'select * from BATCH_JOB_EXECUTION_PA
 ```
 $ docker exec postgres psql -U postgres -c 'select count(*) from BATCH_JOB_EXECUTION;
 ```
+
+```
+mvn clean package -D maven.test.skip=true 
+```
+
+```
+java -jar target/billing-app-0.0.1-SNAPSHOT.jar input.file=src/main/resources/billing-01.csv 
+```

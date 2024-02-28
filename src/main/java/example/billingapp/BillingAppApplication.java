@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
-@Import({BillingAppConfiguration.class, BatchConfiguration.class})
+@Import(BillingAppConfiguration.class)
 public class BillingAppApplication {
 
 	public static void main(String[] args) {
