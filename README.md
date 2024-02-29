@@ -129,3 +129,16 @@ mvn clean package -D maven.test.skip=true
 ```
 java -jar target/billing-app-0.0.1-SNAPSHOT.jar input.file=src/main/resources/billing-01.csv 
 ```
+
+Create a table for the billing data
+```sql
+create table BILLING_DATA
+(
+    DATA_YEAR     INTEGER,
+    DATA_MONTH    INTEGER,
+    ACCOUNT_ID    INTEGER,
+    PHONE_NUMBER  VARCHAR(12),
+    DATA_USAGE    FLOAT,
+    CALL_DURATION INTEGER,
+    SMS_COUNT     INTEGER
+);
