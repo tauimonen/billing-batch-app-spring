@@ -20,11 +20,11 @@ import javax.sql.DataSource;
 
 @Configuration
 public class BillingAppConfiguration {
-
     @Bean
-    public Job job(JobRepository jobRepository, Step step1) {
+    public Job job(JobRepository jobRepository, Step step1, Step step2) {
         return new JobBuilder("BillingJob", jobRepository)
                 .start(step1)
+                .next(step2)
                 .build();
     }
     @Bean
@@ -33,7 +33,6 @@ public class BillingAppConfiguration {
                 .tasklet(new FilePreparationTasklet(), transactionManager)
                 .build();
     }
-
     @Bean
     public Step step2(
             JobRepository jobRepository, JdbcTransactionManager transactionManager,
@@ -44,23 +43,19 @@ public class BillingAppConfiguration {
                 .writer(billingDataTableWriter)
                 .build();
     }
-
     @Bean
-    public FlatFileItemReader<BillingData> billingDataReader() {
+    public FlatFileItemReader<BillingData> billingDataFileReader() {
         return new FlatFileItemReaderBuilder<BillingData>()
-                .name("billingDataReader")
-                .resource(new FileSystemResource("stage/billing-data.csv"))
+                .name("billingDataFileReader")
+                .resource(new FileSystemResource("staging/billing-02.csv"))
                 .delimited()
                 .names("dataYear", "dataMonth", "accountId", "phoneNumber", "dataUsage", "callDuration", "smsCount")
                 .targetType(BillingData.class)
                 .build();
     }
-
     @Bean
-    JdbcBatchItemWriter<BillingData> billingDataTableWriter(DataSource dataSource) {
-        String sql =  "insert into billing_data (data_year, data_month, account_id, phone_number, data_usage, call_duration, sms_count) " +
-                "values (:dataYear, :dataMonth, :accountId, :phoneNumber, :dataUsage, :callDuration, :smsCount)";
-
+    public JdbcBatchItemWriter<BillingData> billingDataTableWriter(DataSource dataSource) {
+        String sql = "insert into BILLING_DATA values (:dataYear, :dataMonth, :accountId, :phoneNumber, :dataUsage, :callDuration, :smsCount)";
         return new JdbcBatchItemWriterBuilder<BillingData>()
                 .dataSource(dataSource)
                 .sql(sql)

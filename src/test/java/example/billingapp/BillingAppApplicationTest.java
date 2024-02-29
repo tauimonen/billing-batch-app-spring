@@ -13,11 +13,17 @@ import org.springframework.batch.test.JobRepositoryTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.jdbc.JdbcTestUtils;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 
-@SpringBootApplication
+@SpringBootTest
 @SpringBatchTest
 @ExtendWith(OutputCaptureExtension.class)
 class BillingAppApplicationTest {
@@ -28,23 +34,31 @@ class BillingAppApplicationTest {
     @Autowired
     private JobRepositoryTestUtils jobRepositoryTestUtils;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     @BeforeEach
     public void setUp() {
         this.jobRepositoryTestUtils.removeJobExecutions();
+        JdbcTestUtils.deleteFromTables(this.jdbcTemplate, "BILLING_DATA");
     }
 
-    @Test
-    void testJobExecution(CapturedOutput output) throws Exception {
-        // given
-        JobParameters jobParameters = new JobParametersBuilder()
-                .addString("input.file", "/some/input/file")
-                .toJobParameters();
+            @Test
+            void testJobExecution() throws Exception {
 
-        // when
-        JobExecution jobExecution = this.jobLauncherTestUtils.launchJob(jobParameters);
+                // given
+                JobParameters jobParameters = new JobParametersBuilder()
+                        .addString("input.file", "src/main/resources/billing-02.csv")
+                        .toJobParameters();
 
-        // then
-        Assertions.assertTrue(output.getOut().contains("processing billing information from file /some/input/file"));
-        Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.getExitStatus());
-    }
+                // when
+                JobExecution jobExecution = this.jobLauncherTestUtils.launchJob(jobParameters);
+
+                // then
+                Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.getExitStatus());
+                Assertions.assertTrue(Files.exists(Paths.get("staging", "billing-02.csv")));
+                Assertions.assertEquals(1000, JdbcTestUtils.countRowsInTable(jdbcTemplate, "BILLING_DATA"));
+            }
+
+
 }
