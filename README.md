@@ -8,12 +8,12 @@ A batch application that generates billing reports for an imaginary cellphone co
 
 Run the container locally on port 5000
 ```
-$ docker run --name postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -p 5000:5432 -d postgres
+docker run --name postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -p 5000:5432 -d postgres
 ```
 
 Connect to the database
 ```
-$ docker exec -it postgres psql -U postgres
+docker exec -it postgres psql -U postgres
 ```
 
 Create tables
@@ -107,19 +107,19 @@ java -jar target/billing-app-0.0.1-SNAPSHOT.jar input.file=src/main/resources/bi
 
 Useful commands
 ```
-$ docker exec postgres psql -U postgres -c 'select * from BATCH_JOB_INSTANCE;'
+docker exec postgres psql -U postgres -c 'select * from BATCH_JOB_INSTANCE;'
 ```
 
 ```
-$ docker exec postgres psql -U postgres -c 'select * from BATCH_JOB_EXECUTION;'
+docker exec postgres psql -U postgres -c 'select * from BATCH_JOB_EXECUTION;'
 ```
 
 ```
-$ docker exec postgres psql -U postgres -c 'select * from BATCH_JOB_EXECUTION_PARAMS;'
+docker exec postgres psql -U postgres -c 'select * from BATCH_JOB_EXECUTION_PARAMS;'
 ```
 
 ```
-$ docker exec postgres psql -U postgres -c 'select count(*) from BATCH_JOB_EXECUTION;
+docker exec postgres psql -U postgres -c 'select count(*) from BATCH_JOB_EXECUTION;
 ```
 
 ```
