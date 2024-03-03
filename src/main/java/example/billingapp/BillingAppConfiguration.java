@@ -8,12 +8,15 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
+import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
+import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.support.JdbcTransactionManager;
 
 import javax.sql.DataSource;
@@ -62,4 +65,16 @@ public class BillingAppConfiguration {
                 .beanMapped()
                 .build();
     }
+
+    @Bean
+    public JdbcCursorItemReader<BillingData> billingDataTableReader(DataSource dataSource) {
+        String sql = "select * from BILLING_DATA";
+        return new JdbcCursorItemReaderBuilder<BillingData>()
+                .name("billingDataTableReader")
+                .dataSource(dataSource)
+                .sql(sql)
+                .rowMapper(new DataClassRowMapper<>(BillingData.class))
+                .build();
+    }
+
 }
