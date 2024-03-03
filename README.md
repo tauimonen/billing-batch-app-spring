@@ -139,3 +139,8 @@ mvn clean package -D maven.test.skip=true
 ```
 java -jar target/billing-app-0.0.1-SNAPSHOT.jar input.file=src/main/resources/billing-01.csv 
 ```
+
+Run the job with all the steps
+```
+java -jar target/billing-app-0.0.1-SNAPSHOT.jar input.file=input/billing-01.csv output.file=staging/billing-report-2023-01.csv data.year=2023 data.month=1
+```

@@ -29,40 +29,18 @@ import javax.sql.DataSource;
 @Configuration
 public class BillingAppConfiguration {
     @Bean
-    public Job job(JobRepository jobRepository, Step step1, Step step2) {
-        return new JobBuilder("BillingJob", jobRepository)
-                .start(step1)
-                .next(step2)
-                .next(step2)
-                .build();
-    }
-    @Bean
     public Step step1(JobRepository jobRepository, JdbcTransactionManager transactionManager) {
         return new StepBuilder("filePreparation", jobRepository)
                 .tasklet(new FilePreparationTasklet(), transactionManager)
                 .build();
     }
-    @Bean
-    public Step step2(
-            JobRepository jobRepository, JdbcTransactionManager transactionManager,
-            ItemReader<BillingData> billingDataFileReader, ItemWriter<BillingData> billingDataTableWriter) {
-        return new StepBuilder("fileIngestion", jobRepository)
-                .<BillingData, BillingData>chunk(100, transactionManager)
-                .reader(billingDataFileReader)
-                .writer(billingDataTableWriter)
-                .build();
-    }
 
     @Bean
-    public Step step3(JobRepository jobRepository, JdbcTransactionManager transactionManager,
-                      ItemReader<BillingData> billingDataTableReader,
-                      ItemProcessor<BillingData, ReportingData> billingDataProcessor,
-                      ItemWriter<ReportingData> billingDataFileWriter) {
-        return new StepBuilder("reportGeneration", jobRepository)
-                .<BillingData, ReportingData>chunk(100, transactionManager)
-                .reader(billingDataTableReader)
-                .processor(billingDataProcessor)
-                .writer(billingDataFileWriter)
+    public Job job(JobRepository jobRepository, Step step1, Step step2, Step step3) {
+        return new JobBuilder("BillingJob", jobRepository)
+                .start(step1)
+                .next(step2)
+                .next(step3)
                 .build();
     }
 
@@ -89,11 +67,18 @@ public class BillingAppConfiguration {
     }
 
     @Bean
+    public Step step2(JobRepository jobRepository, JdbcTransactionManager transactionManager,
+                      ItemReader<BillingData> billingDataFileReader, ItemWriter<BillingData> billingDataTableWriter) {
+        return new StepBuilder("fileIngestion", jobRepository)
+                .<BillingData, BillingData>chunk(100, transactionManager)
+                .reader(billingDataFileReader)
+                .writer(billingDataTableWriter)
+                .build();
+    }
+
+    @Bean
     @StepScope
-    public JdbcCursorItemReader<BillingData> billingDataTableReader(
-            DataSource dataSource,
-            @Value("#{jobParameters['data.year']}") Integer year,
-            @Value("#{jobParameters['data.month']}") Integer month) {
+    public JdbcCursorItemReader<BillingData> billingDataTableReader(DataSource dataSource, @Value("#{jobParameters['data.year']}") Integer year, @Value("#{jobParameters['data.month']}") Integer month) {
         String sql = String.format("select * from BILLING_DATA where DATA_YEAR = %d and DATA_MONTH = %d", year, month);
         return new JdbcCursorItemReaderBuilder<BillingData>()
                 .name("billingDataTableReader")
@@ -110,8 +95,7 @@ public class BillingAppConfiguration {
 
     @Bean
     @StepScope
-    public FlatFileItemWriter<ReportingData> billingDataFileWriter(
-            @Value("#{jobParameters['output.file']}") String outputFile) {
+    public FlatFileItemWriter<ReportingData> billingDataFileWriter(@Value("#{jobParameters['output.file']}") String outputFile) {
         return new FlatFileItemWriterBuilder<ReportingData>()
                 .resource(new FileSystemResource(outputFile))
                 .name("billingDataFileWriter")
@@ -119,4 +103,18 @@ public class BillingAppConfiguration {
                 .names("billingData.dataYear", "billingData.dataMonth", "billingData.accountId", "billingData.phoneNumber", "billingData.dataUsage", "billingData.callDuration", "billingData.smsCount", "billingTotal")
                 .build();
     }
+
+    @Bean
+    public Step step3(JobRepository jobRepository, JdbcTransactionManager transactionManager,
+                      ItemReader<BillingData> billingDataTableReader,
+                      ItemProcessor<BillingData, ReportingData> billingDataProcessor,
+                      ItemWriter<ReportingData> billingDataFileWriter) {
+        return new StepBuilder("reportGeneration", jobRepository)
+                .<BillingData, ReportingData>chunk(100, transactionManager)
+                .reader(billingDataTableReader)
+                .processor(billingDataProcessor)
+                .writer(billingDataFileWriter)
+                .build();
+    }
+
 }

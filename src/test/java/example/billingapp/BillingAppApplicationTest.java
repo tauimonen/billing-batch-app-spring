@@ -48,7 +48,7 @@ class BillingAppApplicationTest {
 
                 // given
                 JobParameters jobParameters = new JobParametersBuilder()
-                        .addString("input.file", "src/main/resources/billing-02.csv")
+                        .addString("input.file", "src/main/resources/billing-2023-02.csv")
                         .toJobParameters();
 
                 // when
@@ -56,7 +56,7 @@ class BillingAppApplicationTest {
 
                 // then
                 Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.getExitStatus());
-                Assertions.assertTrue(Files.exists(Paths.get("staging", "billing-02.csv")));
+                Assertions.assertTrue(Files.exists(Paths.get("staging", "billing-2023-02.csv")));
                 Assertions.assertEquals(1000, JdbcTestUtils.countRowsInTable(jdbcTemplate, "BILLING_DATA"));
             }
 
