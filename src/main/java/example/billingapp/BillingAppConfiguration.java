@@ -77,4 +77,9 @@ public class BillingAppConfiguration {
                 .build();
     }
 
+    @Bean
+    public BillingDataProcessor billingDataProcessor() {
+        return new BillingDataProcessor();
+    }
+
 }
