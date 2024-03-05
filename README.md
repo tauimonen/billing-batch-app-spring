@@ -107,7 +107,7 @@ postgres=# \d
 
 Verify job status
 ```
-docker exec postgres psql -U postgres -c 'select * from BATCH_JOB_EXECUTION;'
+select * from BATCH_JOB_EXECUTION;
 ```
 
 Launch the Job and pass the input file as a parameter
@@ -115,21 +115,21 @@ Launch the Job and pass the input file as a parameter
 java -jar target/billing-app-0.0.1-SNAPSHOT.jar input.file=src/main/resources/billing-2024-01.csv
 ```
 
-Useful commands
+Useful commands (If you want use Docker, add 'docker exec postgres psql -U postgres -c' command at the beginning of each command)
 ```
-docker exec postgres psql -U postgres -c 'select * from BATCH_JOB_INSTANCE;'
-```
-
-```
-docker exec postgres psql -U postgres -c 'select * from BATCH_JOB_EXECUTION;'
+select * from BATCH_JOB_INSTANCE;
 ```
 
 ```
-docker exec postgres psql -U postgres -c 'select * from BATCH_JOB_EXECUTION_PARAMS;'
+select * from BATCH_JOB_EXECUTION;
 ```
 
 ```
-docker exec postgres psql -U postgres -c 'select count(*) from BATCH_JOB_EXECUTION;
+select * from BATCH_JOB_EXECUTION_PARAMS;
+```
+
+```
+select count(*) from BATCH_JOB_EXECUTION;
 ```
 
 ```
@@ -143,4 +143,19 @@ java -jar target/billing-app-0.0.1-SNAPSHOT.jar input.file=src/main/resources/bi
 Run the job with all the steps
 ```
 java -jar target/billing-app-0.0.1-SNAPSHOT.jar input.file=input/billing-01.csv output.file=staging/billing-report-2023-01.csv data.year=2023 data.month=1
+```
+
+Run the failing job
+```
+java -jar target/billing-app-0.0.1-SNAPSHOT.jar input.file=input/billing-2023-03.csv output.file=staging/billing-report-2023-03.csv data.year=2023 data.month=3
+```
+
+Inspect the metadata of job executions
+```
+select job_instance_id, job_execution_id, status from BATCH_JOB_EXECUTION;
+```
+
+Inspect the metadata of step executions
+```
+select step_execution_id, job_execution_id, step_name, status, read_count, write_count, commit_count, rollback_count  from BATCH_STEP_EXECUTION;
 ```
