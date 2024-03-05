@@ -116,19 +116,19 @@ java -jar target/billing-app-0.0.1-SNAPSHOT.jar input.file=src/main/resources/bi
 ```
 
 Useful commands (If you want use Docker, add 'docker exec postgres psql -U postgres -c' command at the beginning of each command)
-```
+```sql
 select * from BATCH_JOB_INSTANCE;
 ```
 
-```
+```sql
 select * from BATCH_JOB_EXECUTION;
 ```
 
-```
+```sql
 select * from BATCH_JOB_EXECUTION_PARAMS;
 ```
 
-```
+```sql
 select count(*) from BATCH_JOB_EXECUTION;
 ```
 
@@ -151,11 +151,11 @@ java -jar target/billing-app-0.0.1-SNAPSHOT.jar input.file=input/billing-2023-03
 ```
 
 Inspect the metadata of job executions
-```
+```sql
 select job_instance_id, job_execution_id, status from BATCH_JOB_EXECUTION;
 ```
 
 Inspect the metadata of step executions
-```
+```sql
 select step_execution_id, job_execution_id, step_name, status, read_count, write_count, commit_count, rollback_count  from BATCH_STEP_EXECUTION;
 ```

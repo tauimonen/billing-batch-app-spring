@@ -15,6 +15,7 @@ import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilde
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileItemWriter;
+import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +29,7 @@ import javax.sql.DataSource;
 
 @Configuration
 public class BillingAppConfiguration {
+
     @Bean
     public Step step1(JobRepository jobRepository, JdbcTransactionManager transactionManager) {
         return new StepBuilder("filePreparation", jobRepository)
@@ -67,12 +69,24 @@ public class BillingAppConfiguration {
     }
 
     @Bean
+    @StepScope
+    public BillingDataSkipListener skipListener(@Value("#{jobParameters['skip.file']}") String skippedFile) {
+        return new BillingDataSkipListener(skippedFile);
+    }
+
+    @Bean
     public Step step2(JobRepository jobRepository, JdbcTransactionManager transactionManager,
-                      ItemReader<BillingData> billingDataFileReader, ItemWriter<BillingData> billingDataTableWriter) {
+                      ItemReader<BillingData> billingDataFileReader,
+                      ItemWriter<BillingData> billingDataTableWriter,
+                      BillingDataSkipListener skipListener) {
         return new StepBuilder("fileIngestion", jobRepository)
                 .<BillingData, BillingData>chunk(100, transactionManager)
                 .reader(billingDataFileReader)
                 .writer(billingDataTableWriter)
+                .faultTolerant()
+                .skip(FlatFileParseException.class)
+                .skipLimit(10)
+                .listener(skipListener)
                 .build();
     }
 
@@ -89,8 +103,8 @@ public class BillingAppConfiguration {
     }
 
     @Bean
-    public BillingDataProcessor billingDataProcessor() {
-        return new BillingDataProcessor();
+    public BillingDataProcessor billingDataProcessor(PricingService pricingService) {
+        return new BillingDataProcessor(pricingService);
     }
 
     @Bean
@@ -116,5 +130,11 @@ public class BillingAppConfiguration {
                 .writer(billingDataFileWriter)
                 .build();
     }
+
+    @Bean
+    public PricingService pricingService() {
+        return  new PricingService();
+    }
+
 
 }
